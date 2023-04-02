@@ -28,155 +28,240 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.selectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.cancelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
-            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.buttonSelect = new System.Windows.Forms.Button();
-            this.treeView1 = new System.Windows.Forms.TreeView();
-            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
-            this.menuStrip1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
-            this.splitContainer1.Panel1.SuspendLayout();
-            this.splitContainer1.SuspendLayout();
-            this.SuspendLayout();
+            fileToolStripMenuItem = new ToolStripMenuItem();
+            selectToolStripMenuItem = new ToolStripMenuItem();
+            cancelToolStripMenuItem = new ToolStripMenuItem();
+            exitToolStripMenuItem = new ToolStripMenuItem();
+            aboutToolStripMenuItem = new ToolStripMenuItem();
+            helpToolStripMenuItem = new ToolStripMenuItem();
+            menuStrip1 = new MenuStrip();
+            splitContainer1 = new SplitContainer();
+            buttonSelect = new Button();
+            treeView1 = new TreeView();
+            tabControl1 = new TabControl();
+            detailsPage = new TabPage();
+            listView1 = new ListView();
+            chartsPage = new TabPage();
+            chartPanel2 = new Panel();
+            chartPanel1 = new Panel();
+            chartBox = new ComboBox();
+            label1 = new Label();
+            statusStrip1 = new StatusStrip();
+            menuStrip1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
+            splitContainer1.Panel1.SuspendLayout();
+            splitContainer1.Panel2.SuspendLayout();
+            splitContainer1.SuspendLayout();
+            tabControl1.SuspendLayout();
+            detailsPage.SuspendLayout();
+            chartsPage.SuspendLayout();
+            SuspendLayout();
             // 
             // fileToolStripMenuItem
             // 
-            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.selectToolStripMenuItem,
-            this.cancelToolStripMenuItem,
-            this.exitToolStripMenuItem});
-            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(54, 29);
-            this.fileToolStripMenuItem.Text = "File";
+            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { selectToolStripMenuItem, cancelToolStripMenuItem, exitToolStripMenuItem });
+            fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            fileToolStripMenuItem.Size = new Size(37, 20);
+            fileToolStripMenuItem.Text = "File";
             // 
             // selectToolStripMenuItem
             // 
-            this.selectToolStripMenuItem.Name = "selectToolStripMenuItem";
-            this.selectToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
-            this.selectToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
-            this.selectToolStripMenuItem.Text = "Select";
-            this.selectToolStripMenuItem.Click += new System.EventHandler(this.selectToolStripMenuItem_Click);
+            selectToolStripMenuItem.Name = "selectToolStripMenuItem";
+            selectToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.S;
+            selectToolStripMenuItem.Size = new Size(150, 22);
+            selectToolStripMenuItem.Text = "Select";
+            selectToolStripMenuItem.Click += selectToolStripMenuItem_Click;
             // 
             // cancelToolStripMenuItem
             // 
-            this.cancelToolStripMenuItem.Enabled = false;
-            this.cancelToolStripMenuItem.Name = "cancelToolStripMenuItem";
-            this.cancelToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.T)));
-            this.cancelToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
-            this.cancelToolStripMenuItem.Text = "Cancel";
+            cancelToolStripMenuItem.Enabled = false;
+            cancelToolStripMenuItem.Name = "cancelToolStripMenuItem";
+            cancelToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.T;
+            cancelToolStripMenuItem.Size = new Size(150, 22);
+            cancelToolStripMenuItem.Text = "Cancel";
             // 
             // exitToolStripMenuItem
             // 
-            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
-            this.exitToolStripMenuItem.Text = "Exit";
+            exitToolStripMenuItem.Name = "exitToolStripMenuItem";
+            exitToolStripMenuItem.ShortcutKeys = Keys.Alt | Keys.F4;
+            exitToolStripMenuItem.Size = new Size(150, 22);
+            exitToolStripMenuItem.Text = "Exit";
             // 
             // aboutToolStripMenuItem
             // 
-            this.aboutToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.helpToolStripMenuItem});
-            this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(78, 29);
-            this.aboutToolStripMenuItem.Text = "About";
+            aboutToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { helpToolStripMenuItem });
+            aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
+            aboutToolStripMenuItem.Size = new Size(52, 20);
+            aboutToolStripMenuItem.Text = "About";
             // 
             // helpToolStripMenuItem
             // 
-            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-            this.helpToolStripMenuItem.Size = new System.Drawing.Size(151, 34);
-            this.helpToolStripMenuItem.Text = "Help";
+            helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+            helpToolStripMenuItem.Size = new Size(99, 22);
+            helpToolStripMenuItem.Text = "Help";
             // 
             // menuStrip1
             // 
-            this.menuStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
-            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem,
-            this.aboutToolStripMenuItem});
-            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
-            this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Padding = new System.Windows.Forms.Padding(9, 3, 0, 3);
-            this.menuStrip1.Size = new System.Drawing.Size(1143, 35);
-            this.menuStrip1.TabIndex = 0;
-            this.menuStrip1.Text = "menuStrip1";
+            menuStrip1.ImageScalingSize = new Size(24, 24);
+            menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, aboutToolStripMenuItem });
+            menuStrip1.Location = new Point(0, 0);
+            menuStrip1.Name = "menuStrip1";
+            menuStrip1.Size = new Size(984, 24);
+            menuStrip1.TabIndex = 0;
+            menuStrip1.Text = "menuStrip1";
             // 
             // splitContainer1
             // 
-            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer1.Location = new System.Drawing.Point(0, 35);
-            this.splitContainer1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.splitContainer1.Name = "splitContainer1";
+            splitContainer1.Dock = DockStyle.Fill;
+            splitContainer1.Location = new Point(0, 24);
+            splitContainer1.Name = "splitContainer1";
             // 
             // splitContainer1.Panel1
             // 
-            this.splitContainer1.Panel1.Controls.Add(this.buttonSelect);
-            this.splitContainer1.Panel1.Controls.Add(this.treeView1);
-            this.splitContainer1.Panel1.Paint += new System.Windows.Forms.PaintEventHandler(this.splitContainer1_Panel1_Paint);
-            this.splitContainer1.Size = new System.Drawing.Size(1143, 715);
-            this.splitContainer1.SplitterDistance = 380;
-            this.splitContainer1.SplitterWidth = 6;
-            this.splitContainer1.TabIndex = 1;
+            splitContainer1.Panel1.Controls.Add(buttonSelect);
+            splitContainer1.Panel1.Controls.Add(treeView1);
+            splitContainer1.Panel1.Paint += splitContainer1_Panel1_Paint;
+            // 
+            // splitContainer1.Panel2
+            // 
+            splitContainer1.Panel2.Controls.Add(tabControl1);
+            splitContainer1.Size = new Size(984, 426);
+            splitContainer1.SplitterDistance = 267;
+            splitContainer1.TabIndex = 1;
             // 
             // buttonSelect
             // 
-            this.buttonSelect.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonSelect.Location = new System.Drawing.Point(256, 20);
-            this.buttonSelect.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.buttonSelect.Name = "buttonSelect";
-            this.buttonSelect.Size = new System.Drawing.Size(107, 38);
-            this.buttonSelect.TabIndex = 1;
-            this.buttonSelect.Text = "Select";
-            this.buttonSelect.UseVisualStyleBackColor = true;
-            this.buttonSelect.Click += new System.EventHandler(this.buttonSelect_Click);
+            buttonSelect.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            buttonSelect.Location = new Point(186, 12);
+            buttonSelect.Name = "buttonSelect";
+            buttonSelect.Size = new Size(75, 23);
+            buttonSelect.TabIndex = 1;
+            buttonSelect.Text = "Select";
+            buttonSelect.UseVisualStyleBackColor = true;
+            buttonSelect.Click += buttonSelect_Click;
             // 
             // treeView1
             // 
-            this.treeView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.treeView1.Location = new System.Drawing.Point(17, 68);
-            this.treeView1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.treeView1.Name = "treeView1";
-            this.treeView1.Size = new System.Drawing.Size(344, 574);
-            this.treeView1.TabIndex = 0;
+            treeView1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            treeView1.Location = new Point(12, 41);
+            treeView1.Name = "treeView1";
+            treeView1.Size = new Size(249, 360);
+            treeView1.TabIndex = 0;
+            // 
+            // tabControl1
+            // 
+            tabControl1.Controls.Add(detailsPage);
+            tabControl1.Controls.Add(chartsPage);
+            tabControl1.Dock = DockStyle.Fill;
+            tabControl1.Location = new Point(0, 0);
+            tabControl1.Name = "tabControl1";
+            tabControl1.SelectedIndex = 0;
+            tabControl1.Size = new Size(713, 426);
+            tabControl1.TabIndex = 0;
+            // 
+            // detailsPage
+            // 
+            detailsPage.Controls.Add(listView1);
+            detailsPage.Location = new Point(4, 24);
+            detailsPage.Name = "detailsPage";
+            detailsPage.Padding = new Padding(3);
+            detailsPage.Size = new Size(705, 398);
+            detailsPage.TabIndex = 0;
+            detailsPage.Text = "Details";
+            detailsPage.UseVisualStyleBackColor = true;
+            // 
+            // listView1
+            // 
+            listView1.Dock = DockStyle.Fill;
+            listView1.Location = new Point(3, 3);
+            listView1.Name = "listView1";
+            listView1.Size = new Size(699, 392);
+            listView1.TabIndex = 0;
+            listView1.UseCompatibleStateImageBehavior = false;
+            // 
+            // chartsPage
+            // 
+            chartsPage.AutoScroll = true;
+            chartsPage.Controls.Add(chartPanel2);
+            chartsPage.Controls.Add(chartPanel1);
+            chartsPage.Controls.Add(chartBox);
+            chartsPage.Controls.Add(label1);
+            chartsPage.Location = new Point(4, 24);
+            chartsPage.Name = "chartsPage";
+            chartsPage.Padding = new Padding(3);
+            chartsPage.Size = new Size(705, 398);
+            chartsPage.TabIndex = 1;
+            chartsPage.Text = "Charts";
+            chartsPage.UseVisualStyleBackColor = true;
+            // 
+            // chartPanel2
+            // 
+            chartPanel2.Location = new Point(348, 59);
+            chartPanel2.Name = "chartPanel2";
+            chartPanel2.Size = new Size(349, 318);
+            chartPanel2.TabIndex = 3;
+            chartPanel2.Paint += chartPanel2_Paint;
+            // 
+            // chartPanel1
+            // 
+            chartPanel1.Location = new Point(18, 59);
+            chartPanel1.Name = "chartPanel1";
+            chartPanel1.Size = new Size(324, 318);
+            chartPanel1.TabIndex = 2;
+            chartPanel1.Paint += chartPanel1_Paint;
+            // 
+            // chartBox
+            // 
+            chartBox.DropDownStyle = ComboBoxStyle.DropDownList;
+            chartBox.FormattingEnabled = true;
+            chartBox.Location = new Point(89, 14);
+            chartBox.Name = "chartBox";
+            chartBox.Size = new Size(119, 23);
+            chartBox.TabIndex = 1;
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(18, 17);
+            label1.Name = "label1";
+            label1.Size = new Size(65, 15);
+            label1.TabIndex = 0;
+            label1.Text = "Chart type:";
             // 
             // statusStrip1
             // 
-            this.statusStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
-            this.statusStrip1.Location = new System.Drawing.Point(0, 728);
-            this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 20, 0);
-            this.statusStrip1.Size = new System.Drawing.Size(1143, 22);
-            this.statusStrip1.TabIndex = 2;
-            this.statusStrip1.Text = "statusStrip1";
+            statusStrip1.ImageScalingSize = new Size(24, 24);
+            statusStrip1.Location = new Point(0, 428);
+            statusStrip1.Name = "statusStrip1";
+            statusStrip1.Size = new Size(984, 22);
+            statusStrip1.TabIndex = 2;
+            statusStrip1.Text = "statusStrip1";
             // 
             // MainWindow
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1143, 750);
-            this.Controls.Add(this.statusStrip1);
-            this.Controls.Add(this.splitContainer1);
-            this.Controls.Add(this.menuStrip1);
-            this.MainMenuStrip = this.menuStrip1;
-            this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.MinimumSize = new System.Drawing.Size(1133, 713);
-            this.Name = "MainWindow";
-            this.Text = "Disk Space Analyzer";
-            this.Load += new System.EventHandler(this.Form1_Load);
-            this.menuStrip1.ResumeLayout(false);
-            this.menuStrip1.PerformLayout();
-            this.splitContainer1.Panel1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
-            this.splitContainer1.ResumeLayout(false);
-            this.ResumeLayout(false);
-            this.PerformLayout();
-
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(984, 450);
+            Controls.Add(statusStrip1);
+            Controls.Add(splitContainer1);
+            Controls.Add(menuStrip1);
+            MainMenuStrip = menuStrip1;
+            MinimumSize = new Size(800, 450);
+            Name = "MainWindow";
+            Text = "Disk Space Analyzer";
+            Load += Form1_Load;
+            menuStrip1.ResumeLayout(false);
+            menuStrip1.PerformLayout();
+            splitContainer1.Panel1.ResumeLayout(false);
+            splitContainer1.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)splitContainer1).EndInit();
+            splitContainer1.ResumeLayout(false);
+            tabControl1.ResumeLayout(false);
+            detailsPage.ResumeLayout(false);
+            chartsPage.ResumeLayout(false);
+            chartsPage.PerformLayout();
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
@@ -192,5 +277,13 @@
         private Button buttonSelect;
         private TreeView treeView1;
         private StatusStrip statusStrip1;
+        private TabControl tabControl1;
+        private TabPage detailsPage;
+        private TabPage chartsPage;
+        private ComboBox chartBox;
+        private Label label1;
+        private ListView listView1;
+        private Panel chartPanel2;
+        private Panel chartPanel1;
     }
 }
