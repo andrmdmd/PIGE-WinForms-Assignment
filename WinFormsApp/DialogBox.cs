@@ -72,10 +72,28 @@ namespace WinFormsApp
                 if (d.IsReady == true)
                 {
                     double totalSize = (double)d.TotalSize / (1024 * 1024 * 1024);
-                    double aviableSpace = (double)d.AvailableFreeSpace / (1024 * 1024 * 1024);
-                    double usedTotal = (100.0 * (d.TotalSize - d.AvailableFreeSpace) / d.TotalSize);
-                    ListViewItem newItem = new ListViewItem(new[] { d.Name, totalSize.ToString("N1") + " GB", aviableSpace.ToString("N1") + " GB", usedTotal.ToString("N2") + "%" });
+                    double availableSpace = (double)d.AvailableFreeSpace / (1024 * 1024 * 1024);
+                    double usedPercent = (100.0 * (d.TotalSize - d.AvailableFreeSpace) / d.TotalSize);
+
+
+                    ListViewItem newItem = new ListViewItem(new[] { d.Name, totalSize.ToString("N1") + " GB", availableSpace.ToString("N1") + " GB", usedPercent.ToString("N2") + "%", "-" });
                     listView.Items.Add(newItem);
+
+                    Rectangle r1 = newItem.SubItems[4].Bounds;
+
+                    Rectangle r2 = new Rectangle(r1.X, r1.Y, r1.Width * (int)(usedPercent / 100), r1.Height);
+
+
+
+                    using(Graphics g = listView.CreateGraphics())
+                    {
+                        g.Clear(Color.White);
+                        g.FillRectangle(Brushes.LightGray, r1);
+                        g.FillRectangle(Brushes.BlueViolet, r2);
+                    }
+
+                    
+                    
 
 
                 }
