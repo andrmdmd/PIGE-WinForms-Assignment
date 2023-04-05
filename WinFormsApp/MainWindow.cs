@@ -1,10 +1,13 @@
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Security.Policy;
 using System.Windows.Forms;
 using System.Xml.Linq;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace WinFormsApp
 {
@@ -35,8 +38,10 @@ namespace WinFormsApp
 
         long totalCount;
         long totalSize;
-        long pathSize;
         int progr = 0;
+        int subfoldersNum = 1;
+        int subdirs = 0;
+        int files = 0;
 
 
         public MainWindow()
@@ -52,8 +57,15 @@ namespace WinFormsApp
             chartBox.Items.Add("Bar chart");
             chartBox.Items.Add("Log bar chart");
 
-            LoadDrivesTree();
+            chartPanel1.Width = chartsPage.Width / 2;
+            chartPanel2.Width = chartsPage.Width / 2;
+            chartPanel1.Height = 80 * chartsPage.Height/100;
+            chartPanel2.Height = 80 * chartsPage.Height/100;
+            chartPanel2.SetBounds(chartPanel1.Location.X + chartsPage.Width / 2, chartPanel2.Location.Y, chartPanel2.Width, chartPanel2.Height);
+
+            LoadDrivesTree(DriveInfo.GetDrives());
             backgroundWorker1.RunWorkerAsync();
+            cancelToolStripMenuItem.Enabled = true;
 
 
         }
@@ -61,13 +73,34 @@ namespace WinFormsApp
         {
 
         }
-        private void LoadDrivesTree()
+        private void CreateFilesNode(string dirName, TreeNode curNode)
         {
-            
-            treeView1.Nodes.Clear();
-            DriveInfo[] allDrives = DriveInfo.GetDrives();
+            List<string> files = new List<string>();
+            foreach (var dir in Directory.GetFiles(currPath))
+            {
+                string[] name = dir.Split(@"\");
+                files.Add(name[name.Length - 1]);
+            }
+            if(files.Count > 3)
+            {
+                TreeNode fileNode = new TreeNode("Files");
+                
+                foreach(var f in files)
+                    fileNode.Nodes.Add(f);
 
-            foreach (DriveInfo d in allDrives)
+                curNode.Nodes.Add(fileNode);
+            }
+            else
+            {
+                foreach (var f in files)
+                    curNode.Nodes.Add(f);
+            }
+        }
+        private void LoadDrivesTree(DriveInfo[] drives)
+        {
+            treeView1.Nodes.Clear();
+
+            foreach (DriveInfo d in drives)
             {
                 if (d.IsReady == true)
                 {
@@ -80,12 +113,12 @@ namespace WinFormsApp
                        
                     }
                     treeView1.Nodes.Add(curNode);
+                    CreateFilesNode(d.Name, curNode);
                     
                 }
             }
             treeView1.Update();
         }
-
 
 
         private void splitContainer_Panel2_Paint(object sender, PaintEventArgs e)
@@ -95,14 +128,53 @@ namespace WinFormsApp
 
         private void buttonSelect_Click(object sender, EventArgs e)
         {
-            DialogBox testDialog = new DialogBox();
+            DialogBox selectDialog = new DialogBox();
 
-            // Show testDialog as a modal dialog and determine if DialogResult = OK.
-            if (testDialog.ShowDialog(this) == DialogResult.OK)
+            if (selectDialog.ShowDialog(this) == DialogResult.OK)
             {
-                string path = testDialog.folderpath;
-                treeView1.Nodes.Clear();
-                //NewTree(path);
+
+                string oldPath = currPath;
+                if (selectDialog.folderpaths.Count == 1)
+                {
+                    currPath = (string)selectDialog.folderpaths[0];
+
+                    if (oldPath != currPath)
+                    {
+                        treeView1.Nodes.Clear();
+
+                        TreeNode curNode = new TreeNode(currPath);
+                        curNode.Tag = currPath;
+                        
+                        string[] pathname = currPath.Split(@"\");
+                        curNode.Text = pathname[pathname.Length - 1];
+                        foreach (var dir in Directory.GetDirectories(currPath))
+                        {
+                            string[] name = dir.Split(@"\");
+                            curNode.Nodes.Add(name[name.Length - 1]);
+
+                        }
+                        treeView1.Nodes.Add(curNode);
+
+                        if (backgroundWorker1.IsBusy == true)
+                        {
+                            backgroundWorker1.CancelAsync();
+                            workerCancelled = true;
+                        }
+
+                        while (backgroundWorker1.IsBusy)
+                            Application.DoEvents();
+
+                        if (chartBox.SelectedItem != null)
+                            runOnFinish = true;
+                        workerCancelled = false;
+                        backgroundWorker1.RunWorkerAsync();
+                    }
+                }
+                else
+                {
+                    DriveInfo[] drivesInfo = selectDialog.folderpaths.Select(x => new DriveInfo(x)).ToArray();
+                    LoadDrivesTree(drivesInfo);
+                }
             }
 
         }
@@ -116,11 +188,10 @@ namespace WinFormsApp
         {
             buttonSelect_Click(sender, e);
         }
-        private void DSearch(string folderPath)
+        private void DSearch(string folderPath, int layer)
         {
-            if(progr < 80) progr += 1;
-            backgroundWorker1.ReportProgress(Math.Min(progr, 80));
-            if (backgroundWorker1.CancellationPending == true)
+            
+            if (backgroundWorker1.CancellationPending)
             {
                 dataReady = false;
                 workerCancelled = true;
@@ -130,6 +201,7 @@ namespace WinFormsApp
             {
                 foreach (string filePath in Directory.GetFiles(folderPath)) // https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/concepts/linq/how-to-group-files-by-extension-linq
                 {
+                    files++;
                     try
                     {
                         string fileType = Path.GetExtension(filePath).ToLower();
@@ -160,12 +232,19 @@ namespace WinFormsApp
                 }
                 foreach (var dir in Directory.GetDirectories(folderPath))
                 {
-                    DSearch(dir);
+                    subdirs++;
+                    DSearch(dir, layer+1);
                 }
             }
             catch (UnauthorizedAccessException)
             {
 
+            }
+
+            if (layer == 1)
+            {
+                progr++;
+                backgroundWorker1.ReportProgress(progr * 100 / subfoldersNum);
             }
 
         }
@@ -179,10 +258,50 @@ namespace WinFormsApp
             topCountFileTypes = new();
             topSizeFileTypes = new();
 
+
+            backgroundWorker1.ReportProgress(0);
+
             workerCancelled = false;
             progr = 0;
+            subfoldersNum = 0;
+            subdirs = 0;
+            files = 0;
+
+            try
+            {
+                string[] subdirectories = Directory.GetDirectories(currPath);
+
+
             
-            DSearch(folderPath);
+                foreach (string subdirectory in subdirectories)
+                {
+                    try
+                    {
+                        if(Directory.Exists(subdirectory)) {
+                            subfoldersNum++;
+                        }
+                        
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        
+                    }
+                }
+            }
+            catch (UnauthorizedAccessException)
+            {
+
+            }
+
+            subfoldersNum = Math.Max(1, subfoldersNum);
+            DSearch(folderPath, 0);
+
+            if(backgroundWorker1.CancellationPending == true)
+            {
+                return;
+            }
+            backgroundWorker1.ReportProgress(100);
+
 
             var sortedFileTypes = CountFileTypes.OrderByDescending(pair => pair.Value);
             topCountFileTypes = sortedFileTypes.Take(10).ToList();
@@ -203,7 +322,7 @@ namespace WinFormsApp
         private int DrawPie(Graphics g, Panel panel, List<KeyValuePair<string, long>> topTypes, long total)
         {
             g.Clear(Color.White);
-            int size = Math.Min(60 * chartPanel1.Width / 100, panel.Height);
+            int size = Math.Min(55 * chartPanel1.Width / 100, panel.Height);
             Rectangle rect = new Rectangle(0, 0, size, size);
             float startAngle = 0;
             int i = 0;
@@ -221,11 +340,13 @@ namespace WinFormsApp
         }
         private void DrawPieChart()
         {
-            // Draw the pie chart
-            using(Graphics g = chartPanel1.CreateGraphics()){
+            if (topCountFileTypes.Count == 0 || topSizeFileTypes.Count == 0)
+                return;
+            
+            using (Graphics g = chartPanel1.CreateGraphics()){
                 g.Clear(Color.White);
                 int size = DrawPie(g, chartPanel1, topCountFileTypes, totalCount);
-                int legendLeft = size + 10;
+                int legendLeft = size + 10 * chartPanel1.Width / 505;
                 int legendTop = 0;
                 int legendWidth = 100;
                 int legendHeight = topCountFileTypes.Count * 20 + 10;
@@ -240,7 +361,7 @@ namespace WinFormsApp
             using(Graphics g = chartPanel2.CreateGraphics()) {
                 g.Clear(Color.White);
                 int size = DrawPie(g, chartPanel2, topSizeFileTypes, totalSize);
-                int legendLeft = size + 10;
+                int legendLeft = size + 10 * chartPanel2.Width / 505;
                 int legendTop = 0;
                 int legendWidth = 100;
                 int legendHeight = topSizeFileTypes.Count * 20 + 10;
@@ -252,32 +373,37 @@ namespace WinFormsApp
                     {
                         sizeString = topSizeFileTypes[i].Value + " bytes";
                     }
-                    else if (topSizeFileTypes[i].Value < 1048576)
+                    else if (topSizeFileTypes[i].Value < 1024 * 1024)
                     {
                         sizeString = Math.Round((double)topSizeFileTypes[i].Value / 1024, 2) + " KB";
                     }
+                    else if (topSizeFileTypes[i].Value < 1024 * 1024 * 1024)
+                    {
+                        sizeString = Math.Round((double)topSizeFileTypes[i].Value / (1024 * 1024), 2) + " MB";
+                    }
                     else
                     {
-                        sizeString = Math.Round((double)topSizeFileTypes[i].Value / 1048576, 2) + " MB";
+                        sizeString = Math.Round((double)topSizeFileTypes[i].Value / (1024 * 1024 * 1024), 2) + " MB";
                     }
                     g.FillRectangle(new SolidBrush(chartColors[i]), legendLeft + 5, legendTop + 4 + i * 20, 20, 10);
                     g.DrawRectangle(new Pen(Color.Black), legendLeft + 5, legendTop + 4 + i * 20, 20, 10);
                     g.DrawString(topSizeFileTypes[i].Key + " - " + sizeString, Font, Brushes.Black, legendLeft + 30, legendTop + i * 20);
                 }
-            }
-            
+            }   
         }
 
 
         private void DrawBarChart()
         {
-            int barWidth = 20;
+            if (topCountFileTypes.Count == 0 || topSizeFileTypes.Count == 0)
+                return;
+            int barWidth = 20 * chartPanel1.Width / 505;
             int barHeight = chartPanel1.Height - 100;
             long max = topCountFileTypes.Max(x => x.Value);
             Font sFont = new Font(Font.FontFamily, Font.Size - 2, Font.Style);
             Font ssFont = new Font(Font.FontFamily, Font.Size - 4, Font.Style);
 
-            int x = 60;
+            int x = 60 * chartPanel1.Width / 505;
             int y = 30;
             
             long interval = max / 10;
@@ -287,14 +413,13 @@ namespace WinFormsApp
             int chartSpace = (int)Math.Round((double)roundedInterval * 10 / max * barHeight);
             int space = chartSpace / 10;
 
-            // Create a graphics object to draw the chart.
             using (Graphics g = chartPanel1.CreateGraphics())
             {
                 g.Clear(Color.White);
-                g.FillRectangle(new SolidBrush(Color.Lavender), 0, 10, chartPanel1.Width-10, barHeight + 50);
+                g.FillRectangle(new SolidBrush(Color.Lavender), 0, 10, chartPanel1.Width - 20 * chartPanel1.Width / 505, barHeight + 50);
                 for (int j = 0; j <= 10; j++)
                 {
-                    g.DrawLine(new Pen(Color.Black), 50, yline, 470, yline);
+                    g.DrawLine(new Pen(Color.Black), 50 * chartPanel1.Width / 505, yline, chartPanel1.Width - 30 * chartPanel1.Width / 505, yline);
                     g.DrawString($"{j}*10^{log}", ssFont, Brushes.Black, 5, yline - 10);
                     yline -= space;
                     if (yline < 10) break;
@@ -306,15 +431,14 @@ namespace WinFormsApp
                     int height  = (int)Math.Round((double)k.Value / max * barHeight);
                     g.FillRectangle(new SolidBrush(chartColors[i]), x, y + barHeight - height, barWidth,height);
                     g.DrawRectangle(new Pen(Color.Black), x, y + barHeight - height, barWidth, height);
-                    // Draw the name of the extension under the bar.
-                    g.DrawString(k.Key, sFont, Brushes.Black, x - 30 + Math.Max(0, (60 - 4*k.Key.Length) / 2), y + barHeight);
+                    
+                    g.DrawString(k.Key, sFont, Brushes.Black, x - 30 * chartPanel1.Width / 505 + Math.Max(0, (60 * chartPanel1.Width / 505 - 4*k.Key.Length) / 2), y + barHeight);
 
-                    // Move the x coordinate to the right for the next bar.
-                    x += barWidth + 18;
+                    x += barWidth + 18 * chartPanel1.Width / 505;
                 }
             }
 
-            x = 60;
+            x = 60 * chartPanel2.Width / 505;
             max = topSizeFileTypes.Max(x => x.Value);
             yline = y + barHeight;
             interval = max / 10;
@@ -324,14 +448,13 @@ namespace WinFormsApp
             chartSpace = (int)Math.Round((double)roundedInterval * 10 / max * barHeight);
             space = chartSpace / 10;
 
-            // Draw each bar for the top size file types.
             using (Graphics g = chartPanel2.CreateGraphics())
             {
                 g.Clear(Color.White);
-                g.FillRectangle(new SolidBrush(Color.Lavender), 0, 10, chartPanel1.Width-10, barHeight + 50);
+                g.FillRectangle(new SolidBrush(Color.Lavender), 0, 10, chartPanel2.Width - 10 * chartPanel2.Width / 505, barHeight + 50);
                 for (int j = 0; j <= 10; j++)
                 {
-                    g.DrawLine(new Pen(Color.Black), 50, yline, 470, yline);
+                    g.DrawLine(new Pen(Color.Black), 50 * chartPanel2.Width / 505, yline, chartPanel2.Width - 30 * chartPanel2.Width / 505, yline);
                     g.DrawString($"{j}*10^{log}", ssFont, Brushes.Black, 5, yline-10);
                     yline -= space;
                     if (yline < 10) break;
@@ -343,18 +466,17 @@ namespace WinFormsApp
                     int height = (int)Math.Round((double)k.Value / max * barHeight);
                     g.FillRectangle(new SolidBrush(chartColors[i]), x, y + barHeight - height, barWidth, height);
                     g.DrawRectangle(new Pen(Color.Black), x, y + barHeight - height, barWidth, height);
-                    // Draw the name of the extension under the bar.
-                    g.DrawString(k.Key, sFont, Brushes.Black, x - 30 + Math.Max(0, (60 - 4*k.Key.Length)/2), y + barHeight);
+                    
+                    g.DrawString(k.Key, sFont, Brushes.Black, x - 30 * chartPanel2.Width / 505  + Math.Max(0, (60 * chartPanel2.Width / 505 - 4*k.Key.Length)/2), y + barHeight);
 
-                    // Move the x coordinate to the right for the next bar.
-                    x += barWidth + 18;
+                    x += barWidth + 18 * chartPanel2.Width / 505;
                 }
             }
         }
 
         private void chartPanel1_Paint(object sender, PaintEventArgs e)
         {
-            DrawPieChart();
+            
         }
 
         private void treeView1_AfterExpand(object sender, TreeViewEventArgs e)
@@ -372,11 +494,7 @@ namespace WinFormsApp
                             string[] name = d.Split(@"\");
                             currNode.Nodes.Add(name[name.Length-1]);
                         }
-                        foreach (var d in Directory.GetFiles((string)currNode.Tag))
-                        {
-                            string[] name = d.Split(@"\");
-                            currNode.Nodes.Add(name[name.Length - 1]);
-                        }
+                        CreateFilesNode((string)currNode.Tag, currNode);
                     }
                     catch (Exception ex)
                     { 
@@ -388,27 +506,28 @@ namespace WinFormsApp
 
         private void DrawLogBarChart()
         {
-            int barWidth = 20;
+            if (topCountFileTypes.Count == 0 || topSizeFileTypes.Count == 0)
+                return;
+            int barWidth = 4 * chartPanel1.Width / 100;
             int barHeight = chartPanel1.Height - 100;
             long max = topCountFileTypes.Max(x => x.Value);
             Font sFont = new Font(Font.FontFamily, Font.Size - 2, Font.Style);
             Font ssFont = new Font(Font.FontFamily, Font.Size - 4, Font.Style);
 
-            int x = 60;
+            int x = 60 * chartPanel1.Width / 505;
             int y = 30;
 
             double logBase = Math.Log10(max);
             double scaleY = barHeight / logBase;
             int yline = y + barHeight;
 
-            // Create a graphics object to draw the chart.
             using (Graphics g = chartPanel1.CreateGraphics())
             {
                 g.Clear(Color.White);
-                g.FillRectangle(new SolidBrush(Color.Lavender), 0, 10, chartPanel1.Width - 10, barHeight + 50);
+                g.FillRectangle(new SolidBrush(Color.Lavender), 0, 10, chartPanel1.Width - 20 * chartPanel2.Width / 505, barHeight + 50);
                 for (int j = 0; j <= logBase; j++)
                 {
-                    g.DrawLine(new Pen(Color.Black), 50, yline, 470, yline);
+                    g.DrawLine(new Pen(Color.Black), 50 * chartPanel2.Width / 505, yline, chartPanel1.Width - 40 * chartPanel1.Width / 505, yline);
                     g.DrawString($"10^{j}", ssFont, Brushes.Black, 5, yline - 10);
                     yline -= (int)scaleY;
                     if (yline < 10) break;
@@ -422,16 +541,14 @@ namespace WinFormsApp
 
                     g.FillRectangle(new SolidBrush(chartColors[i]), x, y + barHeight - height, barWidth, height);
                     g.DrawRectangle(new Pen(Color.Black), x, y + barHeight - height, barWidth, height);
-                    // Draw the name of the extension under the bar.
-                    g.DrawString(k.Key, sFont, Brushes.Black, x - 30 + Math.Max(0, (60 - 4 * k.Key.Length) / 2), y + barHeight);
 
-                    // Move the x coordinate to the right for the next bar.
-                    x += barWidth + 18;
+                    g.DrawString(k.Key, sFont, Brushes.Black, x - 30 * chartPanel1.Width / 505 + Math.Max(0, (60 * chartPanel1.Width / 505 - 4 * k.Key.Length) / 2), y + barHeight);
+
+                    x += barWidth + 18 * chartPanel1.Width / 505;
                 }
             }
 
-
-            x = 60;
+            x = 60 * chartPanel1.Width / 505;
             max = topSizeFileTypes.Max(x => x.Value);
             yline = y + barHeight;
 
@@ -439,15 +556,13 @@ namespace WinFormsApp
             scaleY = barHeight / logBase;
             yline = y + barHeight;
 
-
-            // Draw each bar for the top size file types.
             using (Graphics g = chartPanel2.CreateGraphics())
             {
                 g.Clear(Color.White);
-                g.FillRectangle(new SolidBrush(Color.Lavender), 0, 10, chartPanel1.Width - 10, barHeight + 50);
+                g.FillRectangle(new SolidBrush(Color.Lavender), 0, 10, chartPanel2.Width - 20 * chartPanel2.Width / 505, barHeight + 50);
                 for (int j = 0; j <= logBase; j++)
                 {
-                    g.DrawLine(new Pen(Color.Black), 50, yline, 470, yline);
+                    g.DrawLine(new Pen(Color.Black), 50 * chartPanel2.Width / 505, yline, chartPanel2.Width - 40 * chartPanel1.Width / 505, yline);
                     g.DrawString($"10^{j}", ssFont, Brushes.Black, 5, yline - 10);
                     yline -= (int)scaleY;
                     if (yline < 10) break;
@@ -461,11 +576,10 @@ namespace WinFormsApp
 
                     g.FillRectangle(new SolidBrush(chartColors[i]), x, y + barHeight - height, barWidth, height);
                     g.DrawRectangle(new Pen(Color.Black), x, y + barHeight - height, barWidth, height);
-                    // Draw the name of the extension under the bar.
-                    g.DrawString(k.Key, sFont, Brushes.Black, x - 30 + Math.Max(0, (60 - 4 * k.Key.Length) / 2), y + barHeight);
+                    
+                    g.DrawString(k.Key, sFont, Brushes.Black, x - 30 * chartPanel1.Width / 505 + Math.Max(0, (60 * chartPanel2.Width / 505 - 4 * k.Key.Length) / 2), y + barHeight);
 
-                    // Move the x coordinate to the right for the next bar.
-                    x += barWidth + 18;
+                    x += barWidth + 18 * chartPanel2.Width / 505;
                 }
             }
 
@@ -500,15 +614,37 @@ namespace WinFormsApp
 
         private void backgroundWorker1_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
         {
-            if(workerCancelled == true)
+            cancelToolStripMenuItem.Enabled = false;
+
+            if (workerCancelled == true)
             {
                 workerCancelled = false;
                 return;
             }
-            while(progr <= 100)
+
+
+            string last = Directory.GetLastAccessTime(currPath).ToString();
+            string sizeString;
+
+            if (totalSize < 1024)
             {
-                toolStripProgressBar1.Value = progr++;
+                sizeString = totalCount + " bytes";
             }
+            else if (totalSize < 1024 * 1024)
+            {
+                sizeString = Math.Round((double)totalSize / 1024, 2) + " KB";
+            }
+            else if (totalSize < 1024 * 1024 * 1024)
+            {
+                sizeString = Math.Round((double)totalSize / (1024 * 1024), 2) + " MB";
+            }
+            else
+            {
+                sizeString = Math.Round((double)totalSize / (1024 * 1024 * 1024), 2) + " GB";
+            }
+            detailLabel2.Text = $"{currPath}\n{sizeString}\n{files + subdirs}\n{files}\n{subdirs}\n{last}";
+
+
             dataReady = true;
             if (runOnFinish)
             {
@@ -535,6 +671,34 @@ namespace WinFormsApp
             toolStripProgressBar1.Value = e.ProgressPercentage;
         }
 
+        private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (backgroundWorker1.IsBusy)
+            {
+                backgroundWorker1.CancelAsync();
+            }
+            while (backgroundWorker1.IsBusy)
+            {
+                Application.DoEvents();
+            }
+        }
+
+        private void cancelToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            backgroundWorker1.CancelAsync();
+            
+            cancelToolStripMenuItem.Enabled = false;
+        }
+
+        private void chartsPage_SizeChanged(object sender, EventArgs e)
+        {
+            chartPanel1.Width = chartsPage.Width / 2;
+            chartPanel2.Width = chartsPage.Width / 2;
+            chartPanel1.Height = 80 * chartsPage.Height / 100;
+            chartPanel2.Height = 80 * chartsPage.Height / 100;
+            chartPanel2.SetBounds(chartPanel1.Location.X + chartsPage.Width / 2, chartPanel2.Location.Y, chartPanel2.Width, chartPanel2.Height);
+        }
+
         private void MainWindow_SizeChanged(object sender, EventArgs e)
         {
             switch (chartType)
@@ -553,14 +717,15 @@ namespace WinFormsApp
 
         private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            if ((File.GetAttributes((string)treeView1.SelectedNode.Tag) & FileAttributes.Directory) != FileAttributes.Directory)
-                return;
+            if (treeView1.SelectedNode.Parent != null)
+                if(treeView1.SelectedNode.Text == "Files" || treeView1.SelectedNode.Parent.Text == "Files" || (File.GetAttributes((string)treeView1.SelectedNode.Parent.Tag + treeView1.SelectedNode.Text) & FileAttributes.Directory) != FileAttributes.Directory)
+                    return;
 
             string oldPath = currPath;
             currPath = (string)treeView1.SelectedNode.Tag;
 
 
-            if(oldPath != currPath)
+            if (oldPath != currPath)
             {
                 if (backgroundWorker1.IsBusy == true)
                 {
@@ -575,6 +740,7 @@ namespace WinFormsApp
                     runOnFinish = true;
                 workerCancelled = false;
                 backgroundWorker1.RunWorkerAsync();
+                cancelToolStripMenuItem.Enabled = true;
             }
 
             

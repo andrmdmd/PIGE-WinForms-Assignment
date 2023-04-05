@@ -40,15 +40,16 @@
             this.treeView1 = new System.Windows.Forms.TreeView();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.detailsPage = new System.Windows.Forms.TabPage();
-            this.listView1 = new System.Windows.Forms.ListView();
+            this.detailLabel2 = new System.Windows.Forms.Label();
+            this.detailLabel1 = new System.Windows.Forms.Label();
             this.chartsPage = new System.Windows.Forms.TabPage();
             this.chartPanel2 = new System.Windows.Forms.Panel();
             this.chartPanel1 = new System.Windows.Forms.Panel();
             this.chartBox = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
-            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.toolStripProgressBar1 = new System.Windows.Forms.ToolStripProgressBar();
+            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -84,6 +85,7 @@
             this.cancelToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.T)));
             this.cancelToolStripMenuItem.Size = new System.Drawing.Size(225, 34);
             this.cancelToolStripMenuItem.Text = "Cancel";
+            this.cancelToolStripMenuItem.Click += new System.EventHandler(this.cancelToolStripMenuItem_Click);
             // 
             // exitToolStripMenuItem
             // 
@@ -178,7 +180,8 @@
             // 
             // detailsPage
             // 
-            this.detailsPage.Controls.Add(this.listView1);
+            this.detailsPage.Controls.Add(this.detailLabel2);
+            this.detailsPage.Controls.Add(this.detailLabel1);
             this.detailsPage.Location = new System.Drawing.Point(4, 34);
             this.detailsPage.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.detailsPage.Name = "detailsPage";
@@ -188,15 +191,22 @@
             this.detailsPage.Text = "Details";
             this.detailsPage.UseVisualStyleBackColor = true;
             // 
-            // listView1
+            // detailLabel2
             // 
-            this.listView1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.listView1.Location = new System.Drawing.Point(4, 5);
-            this.listView1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(1003, 667);
-            this.listView1.TabIndex = 0;
-            this.listView1.UseCompatibleStateImageBehavior = false;
+            this.detailLabel2.AutoSize = true;
+            this.detailLabel2.Location = new System.Drawing.Point(161, 33);
+            this.detailLabel2.Name = "detailLabel2";
+            this.detailLabel2.Size = new System.Drawing.Size(0, 25);
+            this.detailLabel2.TabIndex = 5;
+            // 
+            // detailLabel1
+            // 
+            this.detailLabel1.AutoSize = true;
+            this.detailLabel1.Location = new System.Drawing.Point(35, 33);
+            this.detailLabel1.Name = "detailLabel1";
+            this.detailLabel1.Size = new System.Drawing.Size(109, 150);
+            this.detailLabel1.TabIndex = 0;
+            this.detailLabel1.Text = "Full path:\r\nSize:\r\nItems:\r\nFiles:\r\nSubdirs:\r\nLast change:\r\n";
             // 
             // chartsPage
             // 
@@ -213,10 +223,11 @@
             this.chartsPage.Size = new System.Drawing.Size(1011, 677);
             this.chartsPage.TabIndex = 1;
             this.chartsPage.Text = "Charts";
+            this.chartsPage.SizeChanged += new System.EventHandler(this.chartsPage_SizeChanged);
             // 
             // chartPanel2
             // 
-            this.chartPanel2.Location = new System.Drawing.Point(497, 98);
+            this.chartPanel2.Location = new System.Drawing.Point(502, 77);
             this.chartPanel2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.chartPanel2.Name = "chartPanel2";
             this.chartPanel2.Size = new System.Drawing.Size(500, 530);
@@ -224,7 +235,7 @@
             // 
             // chartPanel1
             // 
-            this.chartPanel1.Location = new System.Drawing.Point(8, 98);
+            this.chartPanel1.Location = new System.Drawing.Point(8, 77);
             this.chartPanel1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.chartPanel1.Name = "chartPanel1";
             this.chartPanel1.Size = new System.Drawing.Size(489, 530);
@@ -263,6 +274,11 @@
             this.statusStrip1.TabIndex = 2;
             this.statusStrip1.Text = "statusStrip1";
             // 
+            // toolStripProgressBar1
+            // 
+            this.toolStripProgressBar1.Name = "toolStripProgressBar1";
+            this.toolStripProgressBar1.Size = new System.Drawing.Size(380, 25);
+            // 
             // backgroundWorker1
             // 
             this.backgroundWorker1.WorkerReportsProgress = true;
@@ -270,11 +286,6 @@
             this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
             this.backgroundWorker1.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker1_ProgressChanged);
             this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
-            // 
-            // toolStripProgressBar1
-            // 
-            this.toolStripProgressBar1.Name = "toolStripProgressBar1";
-            this.toolStripProgressBar1.Size = new System.Drawing.Size(380, 25);
             // 
             // MainWindow
             // 
@@ -289,6 +300,7 @@
             this.MinimumSize = new System.Drawing.Size(1133, 713);
             this.Name = "MainWindow";
             this.Text = "Disk Space Analyzer";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainWindow_FormClosing);
             this.Load += new System.EventHandler(this.MainWindow_Load);
             this.SizeChanged += new System.EventHandler(this.MainWindow_SizeChanged);
             this.menuStrip1.ResumeLayout(false);
@@ -299,6 +311,7 @@
             this.splitContainer1.ResumeLayout(false);
             this.tabControl1.ResumeLayout(false);
             this.detailsPage.ResumeLayout(false);
+            this.detailsPage.PerformLayout();
             this.chartsPage.ResumeLayout(false);
             this.chartsPage.PerformLayout();
             this.statusStrip1.ResumeLayout(false);
@@ -326,10 +339,12 @@
         private TabPage chartsPage;
         private ComboBox chartBox;
         private Label label1;
-        private ListView listView1;
         private Panel chartPanel2;
         private Panel chartPanel1;
         private System.ComponentModel.BackgroundWorker backgroundWorker1;
         private ToolStripProgressBar toolStripProgressBar1;
+        private Label detailLabel1;
+        private Label detailLabel2;
+        private Label label5;
     }
 }

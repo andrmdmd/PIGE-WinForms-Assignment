@@ -54,6 +54,7 @@
             this.localDrivesButton.TabStop = true;
             this.localDrivesButton.Text = "All local Drives";
             this.localDrivesButton.UseVisualStyleBackColor = true;
+            this.localDrivesButton.Click += new System.EventHandler(this.localDrivesButton_Click);
             // 
             // individualDrivesButton
             // 
@@ -81,13 +82,16 @@
             // 
             // textBox1
             // 
-            this.textBox1.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
+            this.textBox1.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
             this.textBox1.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.FileSystemDirectories;
             this.textBox1.Location = new System.Drawing.Point(19, 332);
             this.textBox1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(540, 31);
             this.textBox1.TabIndex = 4;
+            this.textBox1.Click += new System.EventHandler(this.textBox1_Click);
+            this.textBox1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox1_KeyDown);
+            this.textBox1.Leave += new System.EventHandler(this.textBox1_Leave);
             // 
             // filesButton
             // 
@@ -98,6 +102,7 @@
             this.filesButton.TabIndex = 5;
             this.filesButton.Text = "...";
             this.filesButton.UseVisualStyleBackColor = true;
+            this.filesButton.Click += new System.EventHandler(this.filesButton_Click);
             // 
             // okButton
             // 
@@ -108,6 +113,7 @@
             this.okButton.TabIndex = 6;
             this.okButton.Text = "OK";
             this.okButton.UseVisualStyleBackColor = true;
+            this.okButton.Click += new System.EventHandler(this.okButton_Click);
             // 
             // cancelButton
             // 
@@ -118,6 +124,7 @@
             this.cancelButton.TabIndex = 7;
             this.cancelButton.Text = "Cancel";
             this.cancelButton.UseVisualStyleBackColor = true;
+            this.cancelButton.Click += new System.EventHandler(this.cancelButton_Click);
             // 
             // listView
             // 
@@ -136,32 +143,36 @@
             this.listView.TabIndex = 8;
             this.listView.UseCompatibleStateImageBehavior = false;
             this.listView.View = System.Windows.Forms.View.Details;
+            this.listView.ColumnWidthChanged += new System.Windows.Forms.ColumnWidthChangedEventHandler(this.listView_ColumnWidthChanged);
+            this.listView.ColumnWidthChanging += new System.Windows.Forms.ColumnWidthChangingEventHandler(this.listView_ColumnWidthChanging);
+            this.listView.Click += new System.EventHandler(this.listView_Click);
             // 
             // nameCol
             // 
             this.nameCol.Text = "Name";
-            this.nameCol.Width = 59;
+            this.nameCol.Width = 100;
             // 
             // totalCol
             // 
             this.totalCol.Text = "Total";
-            this.totalCol.Width = 51;
+            this.totalCol.Width = 100;
             // 
             // freeCol
             // 
             this.freeCol.Text = "Free";
-            this.freeCol.Width = 45;
+            this.freeCol.Width = 100;
             // 
             // usedTotalCol
             // 
             this.usedTotalCol.DisplayIndex = 4;
             this.usedTotalCol.Text = "Used/total";
-            this.usedTotalCol.Width = 340;
+            this.usedTotalCol.Width = 100;
             // 
             // usedTotalProg
             // 
             this.usedTotalProg.DisplayIndex = 3;
             this.usedTotalProg.Text = "Used/total";
+            this.usedTotalProg.Width = 100;
             // 
             // DialogBox
             // 
@@ -185,6 +196,7 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Select Disc or Folder";
             this.Load += new System.EventHandler(this.DialogBox_Load);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.DialogBox_KeyDown);
             this.ResumeLayout(false);
             this.PerformLayout();
 
